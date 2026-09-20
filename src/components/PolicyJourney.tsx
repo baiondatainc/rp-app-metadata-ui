@@ -1,23 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchPatientJourney, fetchPatientSample } from "../api";
+import { fetchPolicyJourney, fetchPolicySample } from "../api";
 import type {
-  JourneyEvent,
   JourneyKind,
-  PatientJourneyPayload,
-  PatientSample,
+  PolicyJourneyPayload,
+  PolicySample,
 } from "../types";
-import { KIND_ORDER, KIND_STYLE, PANEL_BG, PANEL_BORDER } from "./journey/style";
+import { KIND_ORDER, KIND_STYLE, PANEL_BG, PANEL_BORDER, PANEL_SHADOW } from "./journey/style";
 import { JourneyCharts } from "./journey/Charts";
 import { DateRangePresets, applyRange, type RangePreset } from "./journey/DateRange";
 import { Timeline } from "./journey/Timeline";
 
-export function PatientJourney() {
-  const [samples, setSamples] = useState<PatientSample[] | null>(null);
+export function PolicyJourney() {
+  const [samples, setSamples] = useState<PolicySample[] | null>(null);
   const [sampleErr, setSampleErr] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(true);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [journey, setJourney] = useState<PatientJourneyPayload | null>(null);
+  const [journey, setJourney] = useState<PolicyJourneyPayload | null>(null);
   const [journeyErr, setJourneyErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +25,7 @@ export function PatientJourney() {
   const [range, setRange] = useState<RangePreset>("all");
 
   useEffect(() => {
-    fetchPatientSample(50)
+    fetchPolicySample(50)
       .then((rows) => {
         setSamples(rows);
         if (rows.length > 0) setSelectedId(rows[0].id);
@@ -38,13 +37,12 @@ export function PatientJourney() {
     if (!selectedId) return;
     setLoading(true);
     setJourneyErr(null);
-    fetchPatientJourney(selectedId)
+    fetchPolicyJourney(selectedId)
       .then(setJourney)
       .catch((e) => setJourneyErr(String(e)))
       .finally(() => setLoading(false));
   }, [selectedId]);
 
-  // ── derived data ──────────────────────────────────────────────────────────
   const kindFiltered = useMemo(
     () => (journey?.events ?? []).filter((e) => activeKinds.has(e.kind)),
     [journey, activeKinds],
@@ -59,7 +57,7 @@ export function PatientJourney() {
       const next = new Set(prev);
       if (next.has(k)) next.delete(k);
       else next.add(k);
-      if (next.size === 0) next.add(k); // never empty
+      if (next.size === 0) next.add(k);
       return next;
     });
   };
@@ -71,9 +69,10 @@ export function PatientJourney() {
         gridTemplateColumns: pickerOpen ? "320px 1fr" : "0 1fr",
         height: "100%",
         transition: "grid-template-columns 0.18s ease",
+        background: "#ffffff",
       }}
     >
-      <PatientPicker
+      <PolicyPicker
         samples={samples}
         sampleErr={sampleErr}
         selectedId={selectedId}
@@ -83,7 +82,7 @@ export function PatientJourney() {
         onSelect={setSelectedId}
       />
 
-      <section style={{ position: "relative", overflow: "auto" }}>
+      <section style={{ position: "relative", overflow: "auto", background: "#ffffff" }}>
         <button
           onClick={() => setPickerOpen((v) => !v)}
           title={pickerOpen ? "Hide picker" : "Show picker"}
@@ -92,22 +91,23 @@ export function PatientJourney() {
             top: 16,
             left: 12,
             zIndex: 4,
-            background: "#1f2540",
-            color: "#e5e7eb",
-            border: "1px solid rgba(255,255,255,0.12)",
+            background: "#ffffff",
+            color: "#374151",
+            border: "1px solid #e5e7eb",
             borderRadius: 6,
             padding: "4px 10px",
             fontSize: 12,
             margin: 12,
+            boxShadow: PANEL_SHADOW,
           }}
         >
-          {pickerOpen ? "‹ collapse" : "› patients"}
+          {pickerOpen ? "‹ collapse" : "› policies"}
         </button>
 
         <div style={{ padding: "0 28px 28px" }}>
-          {journeyErr && <div style={{ color: "#fca5a5", padding: 18 }}>{journeyErr}</div>}
+          {journeyErr && <div style={{ color: "#b91c1c", padding: 18 }}>{journeyErr}</div>}
           {loading && (
-            <div style={{ color: "#9ca3af", padding: 40, textAlign: "center" }}>
+            <div style={{ color: "#6b7280", padding: 40, textAlign: "center" }}>
               <div className="pulse" style={{ display: "inline-block" }}>
                 Loading journey…
               </div>
@@ -115,7 +115,7 @@ export function PatientJourney() {
           )}
           {!loading && journey && (
             <>
-              <PatientHeaderCard payload={journey} />
+              <PolicyHeaderCard payload={journey} />
               <JourneyCharts events={dateFiltered} />
               <FilterBar
                 journey={journey}
@@ -135,9 +135,9 @@ export function PatientJourney() {
   );
 }
 
-// ── Patient picker ──────────────────────────────────────────────────────────
+// ── Policy picker ───────────────────────────────────────────────────────────
 
-function PatientPicker({
+function PolicyPicker({
   samples,
   sampleErr,
   selectedId,
@@ -146,7 +146,7 @@ function PatientPicker({
   onSubmitInput,
   onSelect,
 }: {
-  samples: PatientSample[] | null;
+  samples: PolicySample[] | null;
   sampleErr: string | null;
   selectedId: string | null;
   inputId: string;
@@ -157,8 +157,8 @@ function PatientPicker({
   return (
     <aside
       style={{
-        borderRight: "1px solid rgba(255,255,255,0.08)",
-        background: "#11162a",
+        borderRight: "1px solid #e5e7eb",
+        background: "#f9fafb",
         overflow: "auto",
       }}
     >
@@ -167,22 +167,22 @@ function PatientPicker({
           value={inputId}
           onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSubmitInput()}
-          placeholder='Enter patient ID (e.g. "SAPA:1000102")'
+          placeholder="Enter policy ID"
           style={{
             width: "100%",
             padding: "8px 10px",
-            background: "#0b1023",
-            color: "#e5e7eb",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "#ffffff",
+            color: "#111827",
+            border: "1px solid #d1d5db",
             borderRadius: 6,
             fontSize: 13,
           }}
         />
-        <div style={{ marginTop: 12, fontSize: 11, color: "#6b7280", textTransform: "uppercase", letterSpacing: 0.5 }}>
-          or pick from highest-balance patients
+        <div style={{ marginTop: 12, fontSize: 11, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 0.5 }}>
+          or pick from top policies by premium
         </div>
       </div>
-      {sampleErr && <div style={{ padding: 14, color: "#fca5a5", fontSize: 13 }}>{sampleErr}</div>}
+      {sampleErr && <div style={{ padding: 14, color: "#b91c1c", fontSize: 13 }}>{sampleErr}</div>}
       {samples && (
         <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
           {samples.map((s) => {
@@ -197,17 +197,19 @@ function PatientPicker({
                     gap: 2,
                     width: "100%",
                     padding: "10px 14px",
-                    background: active ? "rgba(99,102,241,0.18)" : "transparent",
+                    background: active ? "#eef2ff" : "transparent",
                     border: "none",
-                    borderLeft: active ? "3px solid #6366f1" : "3px solid transparent",
-                    color: active ? "#c7d2fe" : "#d1d5db",
+                    borderLeft: active ? "3px solid #4338ca" : "3px solid transparent",
+                    color: active ? "#4338ca" : "#374151",
                     textAlign: "left",
                     fontSize: 12.5,
                   }}
                 >
-                  <span style={{ fontFamily: "ui-monospace, Menlo, monospace", color: "#fde68a" }}>{s.id}</span>
-                  <span style={{ color: "#9ca3af", fontSize: 11.5 }}>
-                    {(s.state || "—")} · {(s.payor_cohort || "—")} · ${fmtMoney(s.balance)}
+                  <span style={{ fontFamily: "ui-monospace, Menlo, monospace", color: "#b45309" }}>
+                    {s.policy_number || s.id}
+                  </span>
+                  <span style={{ color: "#6b7280", fontSize: 11.5 }}>
+                    {(s.line_of_business || "—")} · {(s.policy_status || "—")} · GWP ${fmtMoneyShort(s.gwp)}
                   </span>
                 </button>
               </li>
@@ -219,10 +221,11 @@ function PatientPicker({
   );
 }
 
-// ── Patient header card ─────────────────────────────────────────────────────
+// ── Policy header card ──────────────────────────────────────────────────────
 
-function PatientHeaderCard({ payload }: { payload: PatientJourneyPayload }) {
-  const p = payload.patient;
+function PolicyHeaderCard({ payload }: { payload: PolicyJourneyPayload }) {
+  const p = payload.policy;
+  const statusColor = p.is_cancelled ? "#b91c1c" : p.is_active ? "#047857" : "#525252";
   return (
     <div
       style={{
@@ -231,33 +234,62 @@ function PatientHeaderCard({ payload }: { payload: PatientJourneyPayload }) {
         borderRadius: 12,
         padding: "18px 22px",
         marginTop: 16,
+        boxShadow: PANEL_SHADOW,
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: 14 }}>
-        <h2 style={{ margin: 0, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 20, color: "#fde68a" }}>
-          {p.patient_id}
+        <h2 style={{ margin: 0, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 20, color: "#b45309" }}>
+          {p.policy_number || p.policy_id}
         </h2>
-        <span style={{ color: "#9ca3af", fontSize: 13 }}>
-          {[p.city, p.state].filter(Boolean).join(", ") || "—"}
+        <span
+          style={{
+            color: statusColor,
+            background: p.is_cancelled ? "#fee2e2" : p.is_active ? "#d1fae5" : "#f5f5f5",
+            fontSize: 11,
+            padding: "2px 8px",
+            borderRadius: 999,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: 0.4,
+          }}
+        >
+          {p.policy_status || (p.is_cancelled ? "cancelled" : p.is_active ? "active" : "inactive")}
         </span>
-        {p.practices.length > 0 && (
-          <span style={{ color: "#9ca3af", fontSize: 13 }}>
-            · practice: {p.practices.join(", ")}
+        <span style={{ color: "#6b7280", fontSize: 13 }}>
+          {[p.line_of_business, p.policy_type].filter(Boolean).join(" · ") || "—"}
+        </span>
+        {p.insurer.length > 0 && (
+          <span style={{ color: "#6b7280", fontSize: 13 }}>
+            · insurer: {p.insurer.join(", ")}
+          </span>
+        )}
+        {p.channels.length > 0 && (
+          <span style={{ color: "#6b7280", fontSize: 13 }}>
+            · via: {p.channels.join(", ")}
           </span>
         )}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 14 }}>
-        <Stat label="payor cohort" value={p.payor_cohort || "—"} />
-        <Stat label="call tier" value={p.call_tier || "—"} />
-        <Stat label="carrier" value={p.carrier_name || "—"} />
-        <Stat label="visits" value={String(p.visit_count)} />
-        <Stat label="charges" value={String(p.charge_count)} />
-        <Stat label="statements" value={String(p.statement_count)} />
-        <Stat label="total charged" value={`$${fmtMoney(p.total_charged)}`} />
-        <Stat label="total paid" value={`$${fmtMoney(p.total_paid)}`} accent="#34d399" />
-        <Stat label="outstanding balance" value={`$${fmtMoney(p.outstanding_balance)}`} accent="#fbbf24" />
-        <Stat label="bad debt" value={`$${fmtMoney(p.adj_bad_debt)}`} accent={p.adj_bad_debt > 0 ? "#fca5a5" : undefined} />
+        <Stat label="issue" value={fmtDate(p.issue_date)} />
+        <Stat label="expiry" value={fmtDate(p.expiry_date)} />
+        <Stat label="renewals" value={String(p.renewal_count)} />
+        <Stat label="events" value={String(p.event_count)} />
+        <Stat label="claims" value={`${p.claim_count} (${p.open_claim_count} open)`} />
+        <Stat label="GWP" value={`$${fmtMoney(p.gross_written_premium)}`} />
+        <Stat label="commission" value={`$${fmtMoney(p.commission)}`} />
+        <Stat label="total claimed" value={`$${fmtMoney(p.total_claimed)}`} accent="#b45309" />
+        <Stat label="total paid" value={`$${fmtMoney(p.total_paid)}`} accent="#047857" />
+        <Stat label="outstanding" value={`$${fmtMoney(p.total_outstanding)}`} accent={p.total_outstanding > 0 ? "#b45309" : undefined} />
+        <Stat label="loss ratio" value={`${p.loss_ratio_pct.toFixed(1)}%`} accent={p.loss_ratio_pct > 100 ? "#b91c1c" : p.loss_ratio_pct > 70 ? "#b45309" : "#047857"} />
+        {p.is_reinsured && p.reinsurers.length > 0 && (
+          <Stat label="reinsured by" value={p.reinsurers.join(", ")} />
+        )}
       </div>
+      {p.is_cancelled && p.cancellation_reason && (
+        <div style={{ marginTop: 12, color: "#b91c1c", fontSize: 12 }}>
+          Cancelled {fmtDate(p.cancellation_date)} · {p.cancellation_reason}
+        </div>
+      )}
     </div>
   );
 }
@@ -265,8 +297,8 @@ function PatientHeaderCard({ payload }: { payload: PatientJourneyPayload }) {
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
     <div>
-      <div style={{ color: "#6b7280", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</div>
-      <div style={{ color: accent ?? "#e5e7eb", fontSize: 14, fontWeight: 600, marginTop: 2 }}>{value}</div>
+      <div style={{ color: "#9ca3af", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ color: accent ?? "#111827", fontSize: 14, fontWeight: 600, marginTop: 2 }}>{value}</div>
     </div>
   );
 }
@@ -282,7 +314,7 @@ function FilterBar({
   totalEvents,
   filteredEvents,
 }: {
-  journey: PatientJourneyPayload;
+  journey: PolicyJourneyPayload;
   activeKinds: Set<JourneyKind>;
   onToggle: (k: JourneyKind) => void;
   range: RangePreset;
@@ -297,7 +329,7 @@ function FilterBar({
         top: 0,
         marginTop: 22,
         padding: "14px 16px",
-        background: "rgba(15,19,32,0.85)",
+        background: "rgba(255,255,255,0.92)",
         backdropFilter: "blur(8px)",
         borderRadius: 10,
         border: PANEL_BORDER,
@@ -306,6 +338,7 @@ function FilterBar({
         flexWrap: "wrap",
         alignItems: "center",
         zIndex: 3,
+        boxShadow: PANEL_SHADOW,
       }}
     >
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -318,9 +351,9 @@ function FilterBar({
               key={k}
               onClick={() => onToggle(k)}
               style={{
-                background: on ? meta.bg : "transparent",
-                color: on ? meta.color : "#6b7280",
-                border: "1px solid " + (on ? meta.color : "rgba(255,255,255,0.1)"),
+                background: on ? meta.bg : "#ffffff",
+                color: on ? meta.color : "#9ca3af",
+                border: "1px solid " + (on ? meta.color : "#e5e7eb"),
                 borderRadius: 8,
                 padding: "5px 11px",
                 fontSize: 12,
@@ -348,4 +381,16 @@ function FilterBar({
 function fmtMoney(n: number | null | undefined): string {
   const v = Number(n ?? 0);
   return v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtMoneyShort(n: number | null | undefined): string {
+  const v = Number(n ?? 0);
+  if (Math.abs(v) >= 1_000_000) return (v / 1_000_000).toFixed(1) + "M";
+  if (Math.abs(v) >= 1_000) return (v / 1_000).toFixed(1) + "k";
+  return Math.round(v).toString();
+}
+
+function fmtDate(s: string | null | undefined): string {
+  if (!s) return "—";
+  return s.slice(0, 10);
 }

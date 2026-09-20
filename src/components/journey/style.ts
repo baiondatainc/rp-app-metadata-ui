@@ -7,23 +7,27 @@ export interface KindStyle {
   label: string;
 }
 
+// Light-theme palette: darker colors for text/icons, tinted-white for chip fills.
 export const KIND_STYLE: Record<JourneyKind, KindStyle> = {
-  visit:       { color: "#60a5fa", bg: "rgba(96,165,250,0.15)",  icon: "🏥", label: "Visit" },
-  charge:      { color: "#fbbf24", bg: "rgba(251,191,36,0.15)",  icon: "💵", label: "Charge" },
-  transaction: { color: "#34d399", bg: "rgba(52,211,153,0.15)",  icon: "💸", label: "Payment" },
-  statement:   { color: "#a78bfa", bg: "rgba(167,139,250,0.15)", icon: "📄", label: "Statement" },
-  ivr:         { color: "#22d3ee", bg: "rgba(34,211,238,0.15)",  icon: "📞", label: "IVR call" },
-  dialler:     { color: "#f472b6", bg: "rgba(244,114,182,0.15)", icon: "☎️", label: "Dialler" },
+  issue:        { color: "#4338ca", bg: "#eef2ff", icon: "🟢", label: "Issued" },
+  event:        { color: "#0369a1", bg: "#e0f2fe", icon: "📌", label: "Event" },
+  claim:        { color: "#b45309", bg: "#fef3c7", icon: "📝", label: "Claim" },
+  pre_auth:     { color: "#7c3aed", bg: "#ede9fe", icon: "🛡️", label: "Pre-auth" },
+  payment:      { color: "#047857", bg: "#d1fae5", icon: "💰", label: "Payment" },
+  cancellation: { color: "#b91c1c", bg: "#fee2e2", icon: "⛔", label: "Cancelled" },
+  expiry:       { color: "#525252", bg: "#f5f5f5", icon: "⌛", label: "Expiry" },
 };
 
 export const KIND_ORDER: JourneyKind[] = [
-  "visit",
-  "charge",
-  "transaction",
-  "statement",
-  "ivr",
-  "dialler",
+  "issue",
+  "event",
+  "claim",
+  "pre_auth",
+  "payment",
+  "cancellation",
+  "expiry",
 ];
 
-export const PANEL_BG = "linear-gradient(135deg, #1c2240, #131830)";
-export const PANEL_BORDER = "1px solid rgba(255,255,255,0.06)";
+export const PANEL_BG = "#ffffff";
+export const PANEL_BORDER = "1px solid #e5e7eb";
+export const PANEL_SHADOW = "0 1px 2px rgba(15, 23, 42, 0.04)";

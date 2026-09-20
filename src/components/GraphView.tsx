@@ -7,10 +7,11 @@ interface Props {
 }
 
 // Stable color per label so the graph reads at a glance.
+// Tuned for legibility on a light background.
 const PALETTE = [
-  "#60a5fa", "#34d399", "#fbbf24", "#f87171", "#a78bfa",
-  "#22d3ee", "#fb923c", "#f472b6", "#84cc16", "#e879f9",
-  "#94a3b8", "#fda4af", "#67e8f9", "#fde68a", "#bef264", "#c4b5fd",
+  "#2563eb", "#059669", "#b45309", "#dc2626", "#7c3aed",
+  "#0891b2", "#c2410c", "#db2777", "#65a30d", "#a21caf",
+  "#475569", "#e11d48", "#0e7490", "#a16207", "#4d7c0f", "#6d28d9",
 ];
 
 function colorFor(id: string): string {
@@ -56,7 +57,7 @@ export function GraphView({ graph }: Props) {
   return (
     <div
       ref={containerRef}
-      style={{ width: "100%", height: "100%", background: "#0b1023", position: "relative" }}
+      style={{ width: "100%", height: "100%", background: "#f9fafb", position: "relative" }}
     >
       {size.width > 0 && (
         <ForceGraph2D
@@ -64,14 +65,14 @@ export function GraphView({ graph }: Props) {
           width={size.width}
           height={size.height}
           graphData={data}
-          backgroundColor="#0b1023"
+          backgroundColor="#f9fafb"
           nodeRelSize={6}
           cooldownTicks={120}
           d3VelocityDecay={0.3}
           linkDirectionalArrowLength={5}
           linkDirectionalArrowRelPos={0.95}
           linkLabel={(l: any) => `${l.type} (${l.count.toLocaleString()})`}
-          linkColor={() => "rgba(160,160,200,0.35)"}
+          linkColor={() => "rgba(75,85,99,0.35)"}
           nodeCanvasObject={(node: any, ctx, scale) => {
             const r = node.val ?? 6;
             const color = colorFor(node.id);
@@ -79,8 +80,8 @@ export function GraphView({ graph }: Props) {
             ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
             ctx.fillStyle = color;
             ctx.fill();
-            ctx.strokeStyle = "rgba(0,0,0,0.4)";
-            ctx.lineWidth = 1.2 / scale;
+            ctx.strokeStyle = "rgba(255,255,255,0.9)";
+            ctx.lineWidth = 1.4 / scale;
             ctx.stroke();
 
             // label
@@ -88,7 +89,7 @@ export function GraphView({ graph }: Props) {
             ctx.font = `${fontSize}px ui-sans-serif, system-ui`;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
-            ctx.fillStyle = "#e5e7eb";
+            ctx.fillStyle = "#111827";
             ctx.fillText(node.id, node.x, node.y + r + 2);
           }}
           nodePointerAreaPaint={(node: any, color, ctx) => {
@@ -109,7 +110,7 @@ export function GraphView({ graph }: Props) {
           bottom: 10,
           left: 12,
           fontSize: 11,
-          color: "#9ca3af",
+          color: "#6b7280",
           pointerEvents: "none",
         }}
       >

@@ -16,7 +16,7 @@ export function Timeline({ events }: Props) {
 
   if (grouped.length === 0) {
     return (
-      <div style={{ color: "#9ca3af", padding: "32px 12px" }}>
+      <div style={{ color: "#6b7280", padding: "32px 12px" }}>
         No events to show. Try a wider date range or different event types.
       </div>
     );
@@ -30,9 +30,9 @@ export function Timeline({ events }: Props) {
             style={{
               position: "sticky",
               top: 0,
-              background: "#0f1320",
+              background: "#ffffff",
               padding: "8px 4px",
-              color: "#9ca3af",
+              color: "#6b7280",
               fontSize: 12,
               fontWeight: 600,
               letterSpacing: 0.4,
@@ -41,14 +41,15 @@ export function Timeline({ events }: Props) {
               display: "flex",
               gap: 10,
               alignItems: "baseline",
+              borderBottom: "1px solid #f3f4f6",
             }}
           >
             <span>{key}</span>
-            <span style={{ color: "#4b5563", fontSize: 11 }}>
+            <span style={{ color: "#9ca3af", fontSize: 11 }}>
               {items.length} event{items.length === 1 ? "" : "s"}
             </span>
           </div>
-          <ol style={{ listStyle: "none", margin: 0, padding: 0, borderLeft: "1px solid rgba(255,255,255,0.06)" }}>
+          <ol style={{ listStyle: "none", margin: 0, padding: 0, borderLeft: "1px solid #e5e7eb" }}>
             {items.map((e) => (
               <EventRow
                 key={`${e.kind}:${e.id}:${e.ts}`}
@@ -101,9 +102,9 @@ function EventRow({
         alignItems: "center",
         fontSize: 13,
         background: pinned
-          ? "rgba(99,102,241,0.12)"
+          ? "#eef2ff"
           : hover
-            ? "rgba(255,255,255,0.025)"
+            ? "#f9fafb"
             : "transparent",
         borderRadius: 6,
         cursor: "pointer",
@@ -119,14 +120,14 @@ function EventRow({
           height: 11,
           borderRadius: 11,
           background: meta.color,
-          border: "2px solid #0f1320",
+          border: "2px solid #ffffff",
           boxShadow: pinned ? `0 0 0 4px ${meta.bg}` : "none",
           transition: "box-shadow 0.15s ease",
         }}
       />
-      <span style={{ color: "#9ca3af", fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12 }}>
+      <span style={{ color: "#6b7280", fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12 }}>
         {date}
-        {time && <span style={{ color: "#6b7280", marginLeft: 4 }}>{time}</span>}
+        {time && <span style={{ color: "#9ca3af", marginLeft: 4 }}>{time}</span>}
       </span>
       <span
         title={meta.label}
@@ -144,12 +145,12 @@ function EventRow({
       >
         {meta.icon}
       </span>
-      <span style={{ color: "#e5e7eb", minWidth: 0 }}>
+      <span style={{ color: "#111827", minWidth: 0 }}>
         <span style={{ fontWeight: 600 }}>{ev.label}</span>
         {ev.detail && (
           <span
             style={{
-              color: "#9ca3af",
+              color: "#6b7280",
               marginLeft: 8,
               display: "inline-block",
               maxWidth: 360,
@@ -167,10 +168,11 @@ function EventRow({
             style={{
               marginTop: 8,
               padding: "8px 12px",
-              background: "rgba(0,0,0,0.25)",
+              background: "#f9fafb",
+              border: "1px solid #e5e7eb",
               borderRadius: 6,
               fontSize: 12,
-              color: "#d1d5db",
+              color: "#374151",
               fontFamily: "ui-monospace, Menlo, monospace",
               display: "grid",
               gridTemplateColumns: "auto 1fr",
@@ -207,7 +209,7 @@ function EventRow({
               height: 3,
               width: `${barWidth}%`,
               background: meta.color,
-              opacity: 0.45,
+              opacity: 0.35,
               borderRadius: 2,
             }}
           />

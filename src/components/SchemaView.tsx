@@ -12,7 +12,6 @@ export function SchemaView({ data, mode }: Props) {
   );
   const [filter, setFilter] = useState("");
 
-  // Reset selection when switching mode
   const items: (LabelMeta | RelationshipMeta)[] =
     mode === "labels" ? data.labels : data.relationships;
 
@@ -33,13 +32,14 @@ export function SchemaView({ data, mode }: Props) {
         display: "grid",
         gridTemplateColumns: "260px 1fr",
         height: "100%",
+        background: "#ffffff",
       }}
     >
       <aside
         style={{
-          borderRight: "1px solid rgba(255,255,255,0.08)",
+          borderRight: "1px solid #e5e7eb",
           overflowY: "auto",
-          background: "#11162a",
+          background: "#f9fafb",
         }}
       >
         <div style={{ padding: "12px 14px" }}>
@@ -50,9 +50,9 @@ export function SchemaView({ data, mode }: Props) {
             style={{
               width: "100%",
               padding: "8px 10px",
-              background: "#0b1023",
-              color: "#e5e7eb",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "#ffffff",
+              color: "#111827",
+              border: "1px solid #d1d5db",
               borderRadius: 6,
               fontSize: 13,
             }}
@@ -71,17 +71,17 @@ export function SchemaView({ data, mode }: Props) {
                     display: "flex",
                     width: "100%",
                     padding: "9px 14px",
-                    background: active ? "rgba(99,102,241,0.18)" : "transparent",
+                    background: active ? "#eef2ff" : "transparent",
                     border: "none",
-                    color: active ? "#c7d2fe" : "#d1d5db",
+                    color: active ? "#4338ca" : "#374151",
                     fontSize: 13,
                     fontWeight: active ? 600 : 400,
                     textAlign: "left",
-                    borderLeft: active ? "3px solid #6366f1" : "3px solid transparent",
+                    borderLeft: active ? "3px solid #4338ca" : "3px solid transparent",
                   }}
                 >
                   <span style={{ flex: 1 }}>{key}</span>
-                  <span style={{ color: "#6b7280", fontSize: 12 }}>
+                  <span style={{ color: "#9ca3af", fontSize: 12 }}>
                     {count.toLocaleString()}
                   </span>
                 </button>
@@ -90,7 +90,7 @@ export function SchemaView({ data, mode }: Props) {
           })}
         </ul>
       </aside>
-      <section style={{ overflowY: "auto", padding: "24px 28px" }}>
+      <section style={{ overflowY: "auto", padding: "24px 28px", color: "#111827" }}>
         {current ? (
           mode === "labels" ? (
             <LabelDetail item={current as LabelMeta} relationships={data.relationships} />
@@ -98,7 +98,7 @@ export function SchemaView({ data, mode }: Props) {
             <RelationshipDetail item={current as RelationshipMeta} />
           )
         ) : (
-          <div style={{ color: "#9ca3af" }}>No matches.</div>
+          <div style={{ color: "#6b7280" }}>No matches.</div>
         )}
       </section>
     </div>
@@ -116,17 +116,17 @@ function LabelDetail({
   const outbound = relationships.filter((r) => r.from.includes(item.name));
   return (
     <div>
-      <h2 style={{ margin: 0, fontSize: 22 }}>{item.name}</h2>
-      <div style={{ marginTop: 6, color: "#9ca3af", fontSize: 13 }}>
+      <h2 style={{ margin: 0, fontSize: 22, color: "#111827" }}>{item.name}</h2>
+      <div style={{ marginTop: 6, color: "#6b7280", fontSize: 13 }}>
         {item.count.toLocaleString()} nodes
         {item.pii.length > 0 && (
-          <span style={{ marginLeft: 10, color: "#fda4af" }}>
+          <span style={{ marginLeft: 10, color: "#b91c1c" }}>
             • PII: {item.pii.join(", ")}
           </span>
         )}
       </div>
       {item.description && (
-        <p style={{ marginTop: 14, color: "#d1d5db", lineHeight: 1.55 }}>{item.description}</p>
+        <p style={{ marginTop: 14, color: "#374151", lineHeight: 1.55 }}>{item.description}</p>
       )}
 
       <h3 style={sectionH}>Properties</h3>
@@ -190,7 +190,7 @@ function RelGroup({
   }
   return (
     <div style={{ marginBottom: 18 }}>
-      <div style={{ color: "#9ca3af", fontSize: 12, marginBottom: 6, textTransform: "uppercase" }}>
+      <div style={{ color: "#6b7280", fontSize: 12, marginBottom: 6, textTransform: "uppercase" }}>
         {label}
       </div>
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -199,7 +199,7 @@ function RelGroup({
           return (
             <li key={r.type + dir} style={{ padding: "4px 0", fontSize: 13 }}>
               <code>{thisLabel}</code>{" "}
-              {dir === "out" ? "—" : "—"} <code style={{ color: "#a5b4fc" }}>[{r.type}]</code>{" "}
+              {dir === "out" ? "—" : "—"} <code style={{ color: "#4338ca" }}>[{r.type}]</code>{" "}
               {dir === "out" ? "→" : "←"}{" "}
               {others.length > 0 ? (
                 others.map((l) => <code key={l}>{l}</code>).reduce(
@@ -209,7 +209,7 @@ function RelGroup({
               ) : (
                 <em style={muted}>—</em>
               )}{" "}
-              <span style={{ color: "#6b7280", fontSize: 12 }}>
+              <span style={{ color: "#9ca3af", fontSize: 12 }}>
                 ({r.count.toLocaleString()})
               </span>
             </li>
@@ -223,12 +223,12 @@ function RelGroup({
 function RelationshipDetail({ item }: { item: RelationshipMeta }) {
   return (
     <div>
-      <h2 style={{ margin: 0, fontSize: 22 }}>{item.type}</h2>
-      <div style={{ marginTop: 6, color: "#9ca3af", fontSize: 13 }}>
+      <h2 style={{ margin: 0, fontSize: 22, color: "#111827" }}>{item.type}</h2>
+      <div style={{ marginTop: 6, color: "#6b7280", fontSize: 13 }}>
         {item.count.toLocaleString()} edges
       </div>
       {item.description && (
-        <p style={{ marginTop: 14, color: "#d1d5db", lineHeight: 1.55 }}>{item.description}</p>
+        <p style={{ marginTop: 14, color: "#374151", lineHeight: 1.55 }}>{item.description}</p>
       )}
       <h3 style={sectionH}>Endpoints (observed in the graph)</h3>
       <table style={tableStyle}>
@@ -270,7 +270,7 @@ const sectionH: React.CSSProperties = {
   fontWeight: 600,
   textTransform: "uppercase",
   letterSpacing: 0.5,
-  color: "#9ca3af",
+  color: "#6b7280",
 };
 const tableStyle: React.CSSProperties = {
   width: "100%",
@@ -279,9 +279,9 @@ const tableStyle: React.CSSProperties = {
 };
 const thStyle: React.CSSProperties = {
   textAlign: "left",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid #e5e7eb",
   padding: "8px 10px",
-  color: "#9ca3af",
+  color: "#6b7280",
   fontWeight: 500,
   fontSize: 12,
   textTransform: "uppercase",
@@ -289,12 +289,13 @@ const thStyle: React.CSSProperties = {
 };
 const td: React.CSSProperties = {
   padding: "10px 10px",
-  borderBottom: "1px solid rgba(255,255,255,0.05)",
+  borderBottom: "1px solid #f3f4f6",
   verticalAlign: "top",
+  color: "#374151",
 };
 const tdMono: React.CSSProperties = {
   ...td,
   fontFamily: "ui-monospace, Menlo, monospace",
-  color: "#fde68a",
+  color: "#b45309",
 };
-const muted: React.CSSProperties = { color: "#6b7280" };
+const muted: React.CSSProperties = { color: "#9ca3af" };

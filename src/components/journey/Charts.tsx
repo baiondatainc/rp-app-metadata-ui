@@ -13,8 +13,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { JourneyEvent, JourneyKind } from "../../types";
-import { KIND_ORDER, KIND_STYLE, PANEL_BG, PANEL_BORDER } from "./style";
+import type { JourneyEvent } from "../../types";
+import { KIND_ORDER, KIND_STYLE, PANEL_BG, PANEL_BORDER, PANEL_SHADOW } from "./style";
 
 interface Props {
   events: JourneyEvent[];
@@ -30,14 +30,14 @@ export function JourneyCharts({ events }: Props) {
         marginTop: 18,
       }}
     >
-      <ChartCard title="Cumulative Balance">
-        <BalanceChart events={events} />
+      <ChartCard title="Cumulative Claim Exposure">
+        <ExposureChart events={events} />
       </ChartCard>
       <ChartCard title="Monthly Activity">
         <ActivityChart events={events} />
       </ChartCard>
-      <ChartCard title="Charges by Modality">
-        <ModalityChart events={events} />
+      <ChartCard title="Claim Payouts by Status">
+        <ClaimStatusChart events={events} />
       </ChartCard>
     </div>
   );
@@ -52,11 +52,12 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
         borderRadius: 12,
         padding: "14px 16px 6px",
         minWidth: 0,
+        boxShadow: PANEL_SHADOW,
       }}
     >
       <div
         style={{
-          color: "#9ca3af",
+          color: "#6b7280",
           fontSize: 11,
           fontWeight: 600,
           textTransform: "uppercase",
@@ -71,25 +72,24 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-// ── Balance chart ────────────────────────────────────────────────────────────
-function BalanceChart({ events }: Props) {
+// ── Exposure chart ───────────────────────────────────────────────────────────
+// Cumulative claimed amount (net of payments) over time — a running
+// "outstanding exposure" line for the policy.
+function ExposureChart({ events }: Props) {
   const data = useMemo(() => {
     let bal = 0;
-    const out: { ts: string; balance: number }[] = [];
-    // Charges add to balance; payments/transactions subtract.
-    // We rebuild a running balance over the events as a *qualitative* view.
+    const out: { ts: string; exposure: number }[] = [];
     const sorted = [...events].sort((a, b) => (a.ts < b.ts ? -1 : 1));
     for (const e of sorted) {
-      if (e.kind === "charge" && typeof e.amount === "number") {
+      if (e.kind === "claim" && typeof e.amount === "number") {
         bal += e.amount;
-      } else if (e.kind === "transaction" && typeof e.amount === "number") {
+      } else if (e.kind === "payment" && typeof e.amount === "number") {
         bal -= e.amount;
       } else {
         continue;
       }
-      out.push({ ts: e.ts.slice(0, 10), balance: Math.round(bal * 100) / 100 });
+      out.push({ ts: e.ts.slice(0, 10), exposure: Math.round(bal * 100) / 100 });
     }
-    // Sub-sample if huge — keep ~120 points for smooth area
     if (out.length > 120) {
       const step = Math.ceil(out.length / 120);
       return out.filter((_, i) => i % step === 0).concat(out[out.length - 1]);
@@ -98,40 +98,40 @@ function BalanceChart({ events }: Props) {
   }, [events]);
 
   if (data.length === 0) {
-    return <EmptyChartMsg label="No financial events in range" />;
+    return <EmptyChartMsg label="No claims or payments in range" />;
   }
 
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 6, right: 6, left: -6, bottom: 0 }}>
         <defs>
-          <linearGradient id="balGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.55} />
-            <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
+          <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#b45309" stopOpacity={0.45} />
+            <stop offset="95%" stopColor="#b45309" stopOpacity={0} />
           </linearGradient>
         </defs>
         <XAxis
           dataKey="ts"
-          tick={{ fill: "#6b7280", fontSize: 10 }}
+          tick={{ fill: "#9ca3af", fontSize: 10 }}
           minTickGap={20}
-          stroke="rgba(255,255,255,0.08)"
+          stroke="#e5e7eb"
         />
         <YAxis
-          tick={{ fill: "#6b7280", fontSize: 10 }}
-          stroke="rgba(255,255,255,0.08)"
+          tick={{ fill: "#9ca3af", fontSize: 10 }}
+          stroke="#e5e7eb"
           tickFormatter={(v) => fmtMoneyShort(v)}
         />
         <Tooltip
           contentStyle={tooltipStyle}
-          labelStyle={{ color: "#9ca3af", fontSize: 11 }}
-          formatter={(v: number) => [`$${v.toLocaleString()}`, "balance"]}
+          labelStyle={{ color: "#6b7280", fontSize: 11 }}
+          formatter={(v: number) => [`$${v.toLocaleString()}`, "exposure"]}
         />
         <Area
           type="monotone"
-          dataKey="balance"
-          stroke="#fbbf24"
+          dataKey="exposure"
+          stroke="#b45309"
           strokeWidth={2}
-          fill="url(#balGrad)"
+          fill="url(#expGrad)"
           dot={false}
         />
       </AreaChart>
@@ -168,22 +168,22 @@ function ActivityChart({ events }: Props) {
       <BarChart data={data} margin={{ top: 6, right: 6, left: -10, bottom: 0 }}>
         <XAxis
           dataKey="month"
-          tick={{ fill: "#6b7280", fontSize: 10 }}
+          tick={{ fill: "#9ca3af", fontSize: 10 }}
           minTickGap={20}
-          stroke="rgba(255,255,255,0.08)"
+          stroke="#e5e7eb"
         />
         <YAxis
-          tick={{ fill: "#6b7280", fontSize: 10 }}
-          stroke="rgba(255,255,255,0.08)"
+          tick={{ fill: "#9ca3af", fontSize: 10 }}
+          stroke="#e5e7eb"
           allowDecimals={false}
         />
         <Tooltip
           contentStyle={tooltipStyle}
-          labelStyle={{ color: "#9ca3af", fontSize: 11 }}
-          cursor={{ fill: "rgba(255,255,255,0.03)" }}
+          labelStyle={{ color: "#6b7280", fontSize: 11 }}
+          cursor={{ fill: "rgba(0,0,0,0.03)" }}
         />
         <Legend
-          wrapperStyle={{ fontSize: 10, color: "#9ca3af" }}
+          wrapperStyle={{ fontSize: 10, color: "#6b7280" }}
           iconType="circle"
           iconSize={8}
         />
@@ -202,17 +202,18 @@ function ActivityChart({ events }: Props) {
   );
 }
 
-// ── Modality donut ───────────────────────────────────────────────────────────
-const MODALITY_PALETTE = [
-  "#fbbf24", "#60a5fa", "#34d399", "#a78bfa",
-  "#22d3ee", "#f472b6", "#fb923c", "#94a3b8",
+// ── Claim status donut ───────────────────────────────────────────────────────
+// Sum of claim amounts grouped by claim status (label field on claim events).
+const STATUS_PALETTE = [
+  "#4338ca", "#b45309", "#047857", "#7c3aed",
+  "#0369a1", "#b91c1c", "#525252", "#9333ea",
 ];
 
-function ModalityChart({ events }: Props) {
+function ClaimStatusChart({ events }: Props) {
   const data = useMemo(() => {
     const buckets = new Map<string, number>();
     for (const e of events) {
-      if (e.kind !== "charge") continue;
+      if (e.kind !== "claim") continue;
       const k = e.label || "(unknown)";
       buckets.set(k, (buckets.get(k) || 0) + (e.amount || 0));
     }
@@ -228,7 +229,7 @@ function ModalityChart({ events }: Props) {
   const total = data.reduce((s, r) => s + r.value, 0);
 
   if (data.length === 0) {
-    return <EmptyChartMsg label="No charges in range" />;
+    return <EmptyChartMsg label="No claims in range" />;
   }
 
   return (
@@ -247,7 +248,7 @@ function ModalityChart({ events }: Props) {
             stroke="none"
           >
             {data.map((_, i) => (
-              <Cell key={i} fill={MODALITY_PALETTE[i % MODALITY_PALETTE.length]} />
+              <Cell key={i} fill={STATUS_PALETTE[i % STATUS_PALETTE.length]} />
             ))}
           </Pie>
           <Tooltip
@@ -255,7 +256,7 @@ function ModalityChart({ events }: Props) {
             formatter={(v: number, n: string) => [`$${v.toLocaleString()}`, n]}
           />
           <Legend
-            wrapperStyle={{ fontSize: 10, color: "#9ca3af" }}
+            wrapperStyle={{ fontSize: 10, color: "#6b7280" }}
             iconType="circle"
             iconSize={8}
             layout="vertical"
@@ -274,10 +275,10 @@ function ModalityChart({ events }: Props) {
           pointerEvents: "none",
         }}
       >
-        <div style={{ color: "#9ca3af", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.6 }}>
+        <div style={{ color: "#6b7280", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.6 }}>
           total
         </div>
-        <div style={{ color: "#fde68a", fontSize: 13, fontWeight: 700 }}>
+        <div style={{ color: "#b45309", fontSize: 13, fontWeight: 700 }}>
           ${fmtMoneyShort(total)}
         </div>
       </div>
@@ -294,7 +295,7 @@ function EmptyChartMsg({ label }: { label: string }) {
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-        color: "#6b7280",
+        color: "#9ca3af",
         fontSize: 12,
       }}
     >
@@ -304,11 +305,12 @@ function EmptyChartMsg({ label }: { label: string }) {
 }
 
 const tooltipStyle: React.CSSProperties = {
-  background: "#11162a",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "#ffffff",
+  border: "1px solid #e5e7eb",
   borderRadius: 6,
   fontSize: 12,
-  color: "#e5e7eb",
+  color: "#111827",
+  boxShadow: "0 4px 12px rgba(15,23,42,0.08)",
 };
 
 function fmtMoneyShort(n: number): string {

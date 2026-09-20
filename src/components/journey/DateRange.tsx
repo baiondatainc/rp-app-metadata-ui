@@ -21,7 +21,7 @@ export function DateRangePresets({ preset, onChange, totalEvents, filteredEvents
   ];
   return (
     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-      <span style={{ color: "#6b7280", fontSize: 11, marginRight: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <span style={{ color: "#9ca3af", fontSize: 11, marginRight: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
         range
       </span>
       {items.map(({ id, label }) => {
@@ -31,20 +31,20 @@ export function DateRangePresets({ preset, onChange, totalEvents, filteredEvents
             key={id}
             onClick={() => onChange(id)}
             style={{
-              background: active ? "#3730a3" : "transparent",
-              color: active ? "white" : "#9ca3af",
-              border: "1px solid " + (active ? "#3730a3" : "rgba(255,255,255,0.1)"),
+              background: active ? "#4338ca" : "#ffffff",
+              color: active ? "#ffffff" : "#374151",
+              border: "1px solid " + (active ? "#4338ca" : "#e5e7eb"),
               borderRadius: 6,
               padding: "3px 9px",
               fontSize: 11.5,
-              fontWeight: active ? 600 : 400,
+              fontWeight: active ? 600 : 500,
             }}
           >
             {label}
           </button>
         );
       })}
-      <span style={{ color: "#6b7280", fontSize: 11, marginLeft: 8 }}>
+      <span style={{ color: "#9ca3af", fontSize: 11, marginLeft: 8 }}>
         {filteredEvents.toLocaleString()} / {totalEvents.toLocaleString()} events
       </span>
     </div>
@@ -54,7 +54,6 @@ export function DateRangePresets({ preset, onChange, totalEvents, filteredEvents
 export function applyRange(events: JourneyEvent[], preset: RangePreset): JourneyEvent[] {
   if (preset === "all" || events.length === 0) return events;
 
-  // Compute the latest event date and cut from that.
   const latest = events.reduce((max, e) => (e.ts > max ? e.ts : max), events[0].ts);
   const latestMs = Date.parse(latest);
   if (Number.isNaN(latestMs)) return events;
