@@ -115,3 +115,66 @@ export interface PolicyJourneyPayload {
   events: JourneyEvent[];
   counts: Partial<Record<JourneyKind, number>>;
 }
+
+// ── Ontology (n10s) ─────────────────────────────────────────────────────
+
+export interface OntologyProperty {
+  name: string;
+  label: string;
+  comment: string;
+  uri: string;
+}
+
+export interface OntologyRelEndpoint {
+  type: string;
+  label: string;
+  comment: string;
+  target?: string;
+  source?: string;
+}
+
+export interface OntologyClass {
+  name: string;
+  label: string;
+  comment: string;
+  uri: string;
+  properties: OntologyProperty[];
+  outgoing: OntologyRelEndpoint[];
+  incoming: OntologyRelEndpoint[];
+}
+
+export interface OntologyRelationship {
+  type: string;
+  label: string;
+  comment: string;
+  uri: string;
+  from: string[];
+  to: string[];
+}
+
+export interface OntologyDataProperty {
+  name: string;
+  label: string;
+  comment: string;
+  uri: string;
+  domains: string[];
+  ranges: string[];
+}
+
+export interface OntologyMeta {
+  label: string;
+  comment: string;
+  uri: string;
+}
+
+export interface OntologyPayload {
+  meta: OntologyMeta;
+  classes: OntologyClass[];
+  relationships: OntologyRelationship[];
+  properties: OntologyDataProperty[];
+  totals: {
+    classes: number;
+    relationships: number;
+    properties: number;
+  };
+}

@@ -4,8 +4,9 @@ import type { SchemaPayload } from "./types";
 import { SchemaView } from "./components/SchemaView";
 import { GraphView } from "./components/GraphView";
 import { PolicyJourney } from "./components/PolicyJourney";
+import { OntologyView } from "./components/OntologyView";
 
-type Tab = "labels" | "relationships" | "graph" | "journey";
+type Tab = "labels" | "relationships" | "graph" | "ontology" | "journey";
 
 export default function App() {
   const [data, setData] = useState<SchemaPayload | null>(null);
@@ -56,7 +57,7 @@ export default function App() {
           edges={data.totals.edges}
         />
         <nav style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          {(["labels", "relationships", "graph", "journey"] as Tab[]).map((t) => (
+          {(["labels", "relationships", "graph", "ontology", "journey"] as Tab[]).map((t) => (
             <TabButton key={t} active={tab === t} onClick={() => setTab(t)}>
               {t === "journey" ? "Policy journey" : t}
             </TabButton>
@@ -66,6 +67,8 @@ export default function App() {
       <main style={{ flex: 1, minHeight: 0 }}>
         {tab === "graph" ? (
           <GraphView graph={data.graph} />
+        ) : tab === "ontology" ? (
+          <OntologyView />
         ) : tab === "journey" ? (
           <PolicyJourney />
         ) : (

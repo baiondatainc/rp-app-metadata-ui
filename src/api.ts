@@ -1,4 +1,5 @@
 import type {
+  OntologyPayload,
   PolicyJourneyPayload,
   PolicySample,
   SchemaPayload,
@@ -32,6 +33,19 @@ export async function fetchPolicyJourney(
       throw new Error(`No policy found with id: ${policyId}`);
     }
     throw new Error(`/schema/policy-journey returned HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchOntology(): Promise<OntologyPayload> {
+  const res = await fetch("/api/schema/ontology");
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(
+        "No ontology loaded in Neo4j. Import ia_ontology.ttl via n10s.",
+      );
+    }
+    throw new Error(`/schema/ontology returned HTTP ${res.status}`);
   }
   return res.json();
 }
